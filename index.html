@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ashley Miller | Engineering Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,400&family=Rubik:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2e2418; --ink-soft:#6a5a44; --paper:#fbf6ec; --paper-edge:#e7dcc7;
+    --oak:#a4773f; --accent:#ec5a92; --blue:#5b9bd1; --brass:#b0863a;
+    --disp:'Bricolage Grotesque',sans-serif; --body:'Rubik',sans-serif; --serif:'Fraunces',serif;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{font-family:var(--body);color:var(--ink);background:#b98a52;}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 24px;background:linear-gradient(to bottom,rgba(251,246,236,.85),rgba(251,246,236,0));backdrop-filter:blur(5px);}
+  nav .brand{font-family:var(--disp);font-weight:700;font-size:1.1rem;}
+  nav .links{display:flex;gap:18px;align-items:center;}
+  nav a,nav button.nl{font-family:var(--body);font-weight:500;font-size:.9rem;color:var(--ink);text-decoration:none;
+    cursor:pointer;background:none;border:none;padding:0;position:relative;}
+  nav a::after,nav button.nl::after{content:"";position:absolute;left:0;bottom:-3px;height:2px;width:0;background:var(--accent);transition:width .25s;}
+  nav a:hover::after,nav button.nl:hover::after{width:100%;}
+
+  .stage{position:relative;width:100%;height:100vh;min-height:560px;overflow:hidden;background:#1b130b;
+    display:flex;align-items:center;justify-content:center;padding:80px 3vw 4vh;}
+  .blurbg{position:absolute;inset:0;background:url('newbackgroundwithmicroscope.png') center/cover no-repeat;
+    filter:blur(38px) brightness(.5) saturate(1.15);transform:scale(1.18);}
+  .blurbg::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(125% 105% at 50% 42%, transparent 52%, rgba(20,14,8,.6));}
+  .frame{position:relative;aspect-ratio:1668/943;width:min(92vw,calc((100vh - 150px) * 1.7688));
+    border-radius:16px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);}
+  .layer{position:absolute;inset:0;transform:scale(1.04);transform-origin:50% 50%;will-change:transform;}
+  .layer.zoom{transition:transform 1.15s cubic-bezier(.5,.02,.3,1);}
+  .layer .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+
+  .hot{position:absolute;border:none;background:transparent;cursor:pointer;border-radius:13px;padding:0;outline:none;
+    transition:transform .25s;animation:floaty 6.5s ease-in-out infinite;}
+  /* glitter gradient ring */
+  .hot::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2.5px;
+    background:linear-gradient(115deg,#ec5a92,#f2849e,#f0863e,#b0863a,#5fb98f,#ec5a92);
+    background-size:280% 280%;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    filter:drop-shadow(0 0 6px rgba(236,90,146,.55));animation:glit 5s linear infinite;}
+  .hot.avx::before{background:linear-gradient(115deg,#5b9bd1,#7fb0e2,#a7b58f,#5fb98f,#5b9bd1);background-size:280% 280%;
+    filter:drop-shadow(0 0 6px rgba(91,155,209,.6));}
+  .hot:hover,.hot:focus-visible{transform:scale(1.015);background:rgba(255,255,255,.08);}
+  .hot:hover::before,.hot:focus-visible::before{padding:3.5px;filter:drop-shadow(0 0 14px rgba(236,90,146,.9));}
+  .hot.avx:hover::before,.hot.avx:focus-visible::before{filter:drop-shadow(0 0 14px rgba(91,155,209,.9));}
+  @keyframes glit{0%{background-position:0% 50%;}100%{background-position:280% 50%;}}
+  @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+  /* floaty name label */
+  .hlabel{position:absolute;top:7px;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:2;
+    font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(.66rem,1.25vw,.98rem);color:#fff;
+    background:linear-gradient(135deg,rgba(46,36,24,.86),rgba(60,40,28,.82));padding:3px 13px;border-radius:999px;
+    box-shadow:0 4px 12px rgba(0,0,0,.32), inset 0 0 0 1px rgba(255,255,255,.18);
+    pointer-events:none;animation:lblbob 6.5s ease-in-out infinite;}
+  .hlabel.bottom{top:auto;bottom:7px;}
+  .hot.avx .hlabel{background:linear-gradient(135deg,rgba(33,60,86,.9),rgba(45,75,105,.85));}
+  @keyframes lblbob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-3px);}}
+  /* center dots hidden — glitter outlines carry the click affordance */
+  .beacon,.tip{display:none;}
+
+  /* bio dialogue card — pinned at top, opens on load, reopened from avatar/Home */
+  .biocard{position:fixed;z-index:88;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);
+    width:min(640px,92vw);background:rgba(251,246,236,.98);border:1px solid var(--paper-edge);border-radius:18px;
+    box-shadow:0 22px 60px rgba(46,36,24,.4);padding:18px 20px;opacity:0;pointer-events:none;transition:opacity .4s,transform .4s;}
+  .biocard.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+  .biocard .row{display:flex;gap:16px;align-items:center;}
+  .biocard img.pf{width:74px;height:74px;border-radius:50%;border:3px solid var(--blue);object-fit:cover;flex:0 0 auto;}
+  .biocard .eyebrow{font-family:var(--body);font-weight:500;font-size:.72rem;letter-spacing:1.3px;text-transform:uppercase;color:var(--accent);margin:0 0 3px;}
+  .biocard h2{font-family:var(--disp);font-weight:700;font-size:1.18rem;line-height:1.12;margin:0;color:var(--ink);}
+  .biocard p{font-family:var(--body);font-size:.92rem;line-height:1.55;color:#34281a;margin:12px 0 0;}
+  .biocard .acts{display:flex;gap:10px;margin-top:14px;align-items:center;}
+  .biocard .explore{background:var(--ink);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-family:var(--body);font-weight:500;font-size:.9rem;cursor:pointer;}
+  .biocard .explore:hover{background:var(--accent);}
+  .biocard .xb{position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.5rem;line-height:1;color:var(--ink-soft);cursor:pointer;}
+  .biocard .xb:hover{color:var(--accent);}
+
+
+  /* speech bubble by the avatar */
+  .bubble{position:absolute;z-index:70;width:min(340px,38%);opacity:0;transform:translateY(8px) scale(.98);
+    transform-origin:78% top;transition:opacity .35s,transform .35s;pointer-events:none;}
+  .bubble.show{opacity:1;transform:none;pointer-events:auto;}
+  .bubble-inner{position:relative;background:rgba(251,246,236,.98);border:1px solid var(--paper-edge);
+    border-radius:16px;padding:13px 16px 12px;box-shadow:0 12px 34px rgba(46,36,24,.32);cursor:pointer;}
+  .bubble-inner::before{content:"";position:absolute;left:78%;top:-12px;border:8px solid transparent;
+    border-bottom-color:rgba(251,246,236,.98);}
+  .bubble .nm{font-family:var(--disp);font-weight:700;font-size:.92rem;color:var(--accent);margin:0 0 3px;}
+  .bubble .txt{font-family:var(--body);font-size:.98rem;line-height:1.48;margin:0;min-height:1.5em;color:var(--ink);}
+  .bubble .hint{font-size:.72rem;color:var(--ink-soft);margin-top:7px;height:1em;}
+  .bubble .hint.blink{animation:bl 1s steps(2) infinite;}
+  @keyframes bl{50%{opacity:.25;}}
+
+  /* modals */
+  .modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(7,18,33,.62);backdrop-filter:blur(3px);
+    justify-content:center;align-items:flex-start;padding:48px 18px;overflow-y:auto;}
+  .modal.open{display:flex;}
+  .mc{background:var(--paper);border:1px solid var(--paper-edge);padding:32px 36px 38px;max-width:1040px;width:100%;
+    border-radius:18px;color:var(--ink);box-shadow:0 30px 70px rgba(7,18,33,.4);position:relative;
+    animation:pop .42s cubic-bezier(.2,.8,.2,1) both;}
+  @keyframes pop{from{opacity:0;transform:translateY(22px) scale(.99);}to{opacity:1;transform:none;}}
+  .mc h2{font-family:var(--disp);font-weight:700;font-size:1.8rem;margin:0 0 4px;padding-right:38px;}
+  .mc h3{font-family:var(--disp);font-weight:500;font-size:1.12rem;margin:20px 0 6px;}
+  .mc .eyebrow{font-family:var(--body);font-weight:500;font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent);margin:0 0 12px;}
+  .mc p{line-height:1.65;margin:0 0 13px;color:#34281a;} .mc ul{line-height:1.6;color:#34281a;margin:0 0 13px;padding-left:20px;} .mc li{margin-bottom:6px;}
+  .mc a{color:var(--accent);font-weight:500;} .mc code{background:#efe7d6;padding:1px 6px;border-radius:5px;}
+  .x{position:absolute;top:20px;right:24px;font-size:1.7rem;line-height:1;color:var(--ink-soft);background:none;border:none;cursor:pointer;}
+  .x:hover{color:var(--accent);}
+  .pill{display:inline-block;background:#fbe6ee;border:1px solid #f3c9d9;color:#9c2f57;font-size:.78rem;font-weight:500;padding:4px 11px;border-radius:999px;margin:0 6px 8px 0;}
+  .btn{display:inline-block;background:var(--ink);color:#fff!important;padding:9px 16px;border-radius:10px;text-decoration:none;font-weight:500;margin:6px 10px 0 0;}
+  .btn:hover{background:var(--accent);}
+  .ipnote{background:#fdeee5;border:1px solid #f4c9ad;border-radius:10px;padding:12px 16px;font-size:.9rem;color:#8a4a23;margin:16px 0 4px;}
+  .imgcap{display:flex;flex-direction:column;align-items:center;flex:1 1 220px;}
+  .imgcap img{width:100%;border-radius:10px;border:1px solid var(--paper-edge);} .imgcap span{font-size:.76rem;color:var(--ink-soft);margin-top:5px;text-align:center;}
+  .twocol{display:flex;flex-wrap:wrap;gap:24px;} .twocol .ci{flex:1 1 320px;display:flex;flex-direction:column;gap:14px;} .twocol .ct{flex:1 1 400px;}
+
+  /* click-to-play YouTube facade — robust across https + local file:// */
+  .ytwrap{display:flex;flex-direction:column;gap:6px;margin-bottom:4px;}
+  .ytlite{position:relative;width:100%;height:0;padding-bottom:56.25%;border-radius:10px;overflow:hidden;cursor:pointer;
+    background:#1b130b center/cover no-repeat;border:1px solid var(--paper-edge);}
+  .ytlite::after{content:"";position:absolute;inset:0;background:rgba(20,14,8,.16);transition:background .2s;}
+  .ytlite:hover::after{background:rgba(20,14,8,.02);}
+  .ytlite .pbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:66px;height:46px;z-index:2;
+    border-radius:13px;background:rgba(236,90,146,.92);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,.4);transition:transform .2s,background .2s;}
+  .ytlite:hover .pbtn{transform:translate(-50%,-50%) scale(1.09);background:var(--accent);}
+  .ytlite .pbtn::after{content:"";border-style:solid;border-width:10px 0 10px 17px;
+    border-color:transparent transparent transparent #fff;margin-left:4px;}
+  .ytlite iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:3;}
+  .ytcap{font-size:.76rem;color:var(--ink-soft);margin:0;}
+  .ytcap a{color:var(--accent);font-weight:500;}
+
+  /* contact popup */
+  .contact-list{margin-top:16px;display:flex;flex-direction:column;gap:11px;}
+  .ci-row{display:flex;align-items:baseline;gap:14px;font-size:1rem;}
+  .ci-label{font-family:var(--disp);font-weight:700;font-size:.72rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);min-width:82px;}
+  .ci-row a{color:var(--ink);font-weight:500;text-decoration:none;border-bottom:1px solid var(--paper-edge);}
+  .ci-row a:hover{color:var(--accent);border-color:var(--accent);}
+
+  @media (max-width:760px){
+    .stage{height:auto;min-height:0;padding:64px 2vw 14vh;background:#1b130b;}
+    .frame{width:96vw;}
+    .layer{transform:scale(1.02);}
+    .hlabel{font-size:.6rem;padding:2px 8px;}
+    .bubble{position:fixed;left:4%!important;right:4%;top:auto!important;bottom:3%;width:92%!important;z-index:90;}
+    .bubble-inner::before{display:none;}
+    nav .links{gap:12px;font-size:.82rem;} .mc{padding:24px 20px 30px;} .mc h2{font-size:1.4rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hot,.hot::before,.hlabel{animation:none;} .layer.zoom{transition:none;}
+  }
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">Ashley Miller <span style="font-weight:400;opacity:.62;">· Portfolio</span></span>
+  <div class="links">
+    <button class="nl" onclick="sayBio()">Home</button>
+    <a href="cv_ashleymiller.pdf" target="_blank" rel="noopener">CV</a>
+    <a href="resume_ashleymiller.pdf" target="_blank" rel="noopener">Résumé</a>
+    <a href="https://www.linkedin.com/in/ashleymiller20" target="_blank" rel="noopener">LinkedIn</a>
+    <button class="nl" onclick="openModal('modalContact')">Contact</button>
+  </div>
+</nav>
+
+<div class="stage" id="stage">
+  <div class="blurbg" aria-hidden="true"></div>
+  <div class="frame" id="frame">
+  <div class="layer" id="layer">
+    <img class="bg" src="newbackgroundwithmicroscope.png" alt="Ashley's illustrated engineering and design studio" />
+    <!-- hotspots: left,top,width,height % — measured against the annotated illustration; labels placed top/bottom to avoid clutter -->
+    <button class="hot" style="left:2.2%;top:33.8%;width:25.9%;height:43.6%;z-index:5;animation-delay:-.3s" onclick="pick(this,'electrobottle')"><span class="hlabel">ElectroBottle</span></button>
+    <button class="hot" style="left:29.2%;top:23.5%;width:17.5%;height:27.4%;z-index:4;animation-delay:-2.1s" onclick="pick(this,'hardware')"><span class="hlabel">MechE &amp; 3D Printing</span></button>
+    <button class="hot" style="left:32.1%;top:52.9%;width:13.2%;height:17.2%;z-index:6;animation-delay:-1.2s" onclick="pick(this,'robocat')"><span class="hlabel bottom">Rainbow RoboCat</span></button>
+    <button class="hot" style="left:47.5%;top:27.6%;width:11.8%;height:15.5%;z-index:6;animation-delay:-3.4s" onclick="pick(this,'cardio')"><span class="hlabel">Cardiovascular CFD</span></button>
+    <button class="hot" style="left:55.9%;top:1.7%;width:11.2%;height:21.9%;z-index:5;animation-delay:-4.6s" onclick="pick(this,'jigging')"><span class="hlabel bottom">Jigging — CEV</span></button>
+    <button class="hot" style="left:72.5%;top:30.7%;width:11.3%;height:28.8%;z-index:6;animation-delay:-1.8s" onclick="pick(this,'depop')"><span class="hlabel">Depop Shop</span></button>
+    <button class="hot" style="left:73.7%;top:61.1%;width:16.8%;height:23.6%;z-index:6;animation-delay:-1.5s" onclick="pick(this,'adie')"><span class="hlabel">Biomedical Imaging - Adie Lab</span></button>
+    <button class="hot" style="left:68.5%;top:1.7%;width:9.6%;height:25.2%;z-index:4;animation-delay:-3.0s" onclick="pick(this,'atelier')"><span class="hlabel">Atelier Vintage</span></button>
+    <button class="hot" style="left:84.4%;top:5.7%;width:12.4%;height:30.2%;z-index:4;animation-delay:-2.4s" onclick="pick(this,'teaching')"><span class="hlabel">Teaching</span></button>
+    <button class="hot avx" id="avatarHot" style="left:60.4%;top:22.9%;width:6.9%;height:46.7%;z-index:7;animation-delay:-2.6s" onclick="sayBio()" aria-label="About Ashley"><span class="hlabel bottom">About Me</span></button>
+  </div>
+
+  <!-- speech bubble on the open floor, tail pointing up to the avatar -->
+  <div class="bubble" id="bubble" style="left:20%;top:69%;">
+    <div class="bubble-inner" onclick="advance()">
+      <p class="nm">Ashley</p>
+      <p class="txt" id="btxt"></p>
+      <p class="hint" id="bhint"></p>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- bio dialogue card (auto-opens on load; reopened via avatar or Home) -->
+<div class="biocard" id="biocard">
+  <button class="xb" onclick="closeBio()" aria-label="Close">&times;</button>
+  <div class="row">
+    <img class="pf" src="avatar.png" alt="Ashley Miller">
+    <div><p class="eyebrow">Hi, I'm Ashley</p>
+    <h2>Biomedical engineer across the shop, the bench &amp; the screen</h2></div>
+  </div>
+  <p>I'm a biomedical engineering MS graduate who builds across the full range of engineering environments. Whether I'm in the shop, at the bench, or behind the screen, I'm driven by a passion for creating thoughtfully engineered tools that bring us closer to the next generation of medical devices.</p>
+  <div class="acts"><button class="explore" onclick="closeBio()">Explore my studio ▸</button></div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<div id="modal1" class="modal" onclick="closeModal(event,'modal1')"><div class="mc"><button class="x" onclick="closeModal(event,'modal1')">&times;</button>
+  <p class="eyebrow">Research · Adie Lab, Cornell</p><h2>Benchtop Setup for ARF-OCE Imaging</h2>
+  <p><span class="pill">Mechanical design</span><span class="pill">Autodesk Inventor</span><span class="pill">Fabrication</span><span class="pill">Finite element modeling</span><span class="pill">Ultrasound / OCT</span><span class="pill">Research</span></p>
+  <div class="twocol"><div class="ci">
+    <div class="imgcap"><img src="waterbath_CAD.png" alt="CAD of waterbath fixture"><span>CAD of waterbath fixture</span></div>
+    <div class="imgcap"><img src="waterbath_benchtop.png" alt="Benchtop build"><span>Benchtop build</span></div></div>
+  <div class="ct">
+  <p>As an undergraduate researcher in the <strong>Adie Lab</strong> at Cornell, I expedited rapid testing and iteration of an Acoustic Radiation Force - Optical Coherence Tomography (ARF-OCE) system by designing a custom waterbath fixture to align ultrasound and OCT imaging systems in a tissue-mimicking setup and spearheaded the integration of finite element modeling simulations to the lab's design cycle.</p>
+  <ul>
+    <li>Designed and fabricated the fixture aligning optical and acoustic paths</li>
+    <li>Improved resolution of the ARF focal spot with a newly mounted transducer</li>
+    <li>Iterated CAD and tested mechanical alignments to integrate both transducers</li>
+    <li>Spearheaded finite element modeling to reconstruct phantom mechanics and predict ARF effects</li>
+    <li>Presented in two lab meetings and submitted a final research report</li>
+  </ul>
+  </div></div>
+</div></div>
+
+
+<div id="modal2" class="modal" onclick="closeModal(event,'modal2')"><div class="mc"><button class="x" onclick="closeModal(event,'modal2')">&times;</button>
+  <p class="eyebrow">Robotics Studio · Columbia</p><h2>Walking Quadruped Robot — Rainbow RoboCat</h2>
+  <p><span class="pill">Autodesk Inventor CAD</span><span class="pill">3D printing</span><span class="pill">Embedded systems</span><span class="pill">Soldering</span><span class="pill">Python</span><span class="pill">ROS</span><span class="pill">PyBullet</span><span class="pill">Genetic algorithms</span></p>
+  <div class="twocol"><div class="ci"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="imgcap"><img src="glamour_ted.jpg" alt=""><span>Glamour shot (feat. Teddy)</span></div>
+    <div class="imgcap"><img src="robot_schematic.JPG" alt=""><span>CAD schematic</span></div>
+    <div class="imgcap"><img src="simulated.png" alt=""><span>PyBullet simulation</span></div>
+    <div class="imgcap"><img src="walking_action_shot.jpg" alt=""><span>Walking action shot</span></div></div></div>
+  <div class="ct">
+  <p>As part of <em>Robotics Studio</em> at Columbia, we were challenged to design, build, and program a fast-walking robot using only 8 servo motors, materials available at home or in the Makerspace, and a strict $100 budget. I created <strong>Rainbow RoboCat</strong> — a quadruped robot with serial-driven legs, a rainbow-gradient 3D-printed chassis, and playful feline features.</p>
+  <p>From early concept sketches to a detailed CAD assembly, I engineered every component myself - modeling every nut, bolt, wire, and joint in Autodesk Inventor before moving to physical fabrication. I printed all chassis components on my at-home Ender 3 V3 SE using silk rainbow PLA, sanding and finishing each part to give RoboCat a polished look. I also learned how to solder for the first time, wiring the LX16A servos, battery, Raspberry Pi, and other embedded electronics into a compact and durable onboard setup.</p>
+  <p>Starting from a single leg, I gradually expanded control to all four legs using Python and the <code>pylx16a</code> library, developing motion primitives and a working sinusoidal gait. To further boost RoboCat's speed, I built a full PyBullet simulation of the robot using a custom URDF and applied a hill climber and genetic algorithm to optimize the gait's sinusoidal parameters.</p>
+  <p>The result: a robot capable of reaching a <strong>top speed of 38 cm/s</strong>, with movement tuned both in simulation and validated on hardware — all while staying under budget, finishing within one semester, and keeping Rainbow RoboCat full of personality.</p>
+  </div></div>
+  <h3>Watch RoboCat in action</h3>
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="ytwrap">
+      <div class="ytlite" data-yt="JXa4My5Pm58" style="background-image:url('https://i.ytimg.com/vi/JXa4My5Pm58/hqdefault.jpg')" onclick="loadYT(this)" role="button" tabindex="0" aria-label="Play RoboCat video 1"><span class="pbtn"></span></div>
+      <p class="ytcap">Video not loading? <a href="https://youtu.be/JXa4My5Pm58" target="_blank" rel="noopener">Watch on YouTube ↗</a></p>
+    </div>
+    <div class="ytwrap">
+      <div class="ytlite" data-yt="b2mN5fI4Llo" style="background-image:url('https://i.ytimg.com/vi/b2mN5fI4Llo/hqdefault.jpg')" onclick="loadYT(this)" role="button" tabindex="0" aria-label="Play RoboCat video 2"><span class="pbtn"></span></div>
+      <p class="ytcap">Video not loading? <a href="https://youtu.be/b2mN5fI4Llo" target="_blank" rel="noopener">Watch on YouTube ↗</a></p>
+    </div>
+    <div class="ytwrap">
+      <div class="ytlite" data-yt="8BDgg_0Cm7w" style="background-image:url('https://i.ytimg.com/vi/8BDgg_0Cm7w/hqdefault.jpg')" onclick="loadYT(this)" role="button" tabindex="0" aria-label="Play RoboCat video 3"><span class="pbtn"></span></div>
+      <p class="ytcap">Video not loading? <a href="https://youtu.be/8BDgg_0Cm7w" target="_blank" rel="noopener">Watch on YouTube ↗</a></p>
+    </div>
+  </div>
+</div></div>
+
+<div id="modal3" class="modal" onclick="closeModal(event,'modal3')"><div class="mc"><button class="x" onclick="closeModal(event,'modal3')">&times;</button>
+  <p class="eyebrow">Drivetrain Lead · Cornell Electric Vehicles</p><h2>Jigging &amp; Assembly Design</h2>
+  <p><span class="pill">Jig design</span><span class="pill">DFM</span><span class="pill">Autodesk Inventor</span><span class="pill">Mill / lathe / laser</span><span class="pill">Tolerancing</span><span class="pill">Team leadership</span></p>
+  <div class="twocol"><div class="ci">
+    <div class="imgcap"><img src="cev_cad.png" alt=""><span>80/20 chassis jig — CAD</span></div>
+    <div class="imgcap"><img src="cev_pic.png" alt=""><span>Assembled jig</span></div>
+    <div class="imgcap"><img src="cev_selfie.JPG" alt=""><span>The assembly team</span></div></div>
+  <div class="ct">
+  <p>Over my three years on Cornell Electric Vehicles, I grew from a general mechanical subteam member into <strong>Drivetrain Subsystem Lead</strong>, a role I held for about six months. During this time, I led a dedicated assembly and jigging team of over a dozen people through the most precision-critical phase of the car's build: physically integrating the drivetrain and brake subsystems into the carbon fiber chassis.</p>
+  <p>I coordinated closely with other subsystem leads while personally designing and iterating multiple custom drilling jigs in Autodesk Inventor. These combined 3D-printed stencils, laser-cut acrylic, and 8020 framing to align drivetrain components to CAD-based constraints, all while navigating real-world tolerances and foam-core crush risks. I developed the wheel well and axle alignment jigs and directly participated in shop fabrication, using mill, drill press, and laser cutter tools comfortably to ensure fast turnarounds.</p>
+  <p>One of our initial floor jigs failed due to an oversight in the support geometry. Thanks to quick thinking from teammates I was managing, we pivoted to a laser-cut acrylic solution and salvaged the drilling schedule just in time. I learned to manage shifting priorities, communicate intent across teams, and respond constructively to mistakes under time pressure.</p>
+  <p>Later, I helped resolve unexpected interference between drivetrain and steering components by co-designing a machined brake mount fixture on short notice. These experiences sharpened my skills in DFM, cross-functional collaboration, and real-world, edge case mechanical problem-solving. The drivetrain's successful competition debut was the product of intensive planning, close communication, and a lot of hands-on shop work.</p>
+  </div></div>
+</div></div>
+
+<div id="modal4" class="modal" onclick="closeModal(event,'modal4')"><div class="mc"><button class="x" onclick="closeModal(event,'modal4')">&times;</button>
+  <p class="eyebrow">Simulation · Cornell &amp; Columbia</p><h2>Cardiovascular Simulation &amp; Modeling</h2>
+  <p><span class="pill">Ansys Fluent CFD</span><span class="pill">Meshing</span><span class="pill">Biomechanics</span><span class="pill">Python numerical methods</span><span class="pill">Technical writing</span></p>
+  <div class="twocol"><div class="ci">
+    <div class="imgcap"><img src="fluent_fig_3.png" alt=""><span>Healthy vs. obstructed wall shear stress</span></div>
+    <div class="imgcap"><img src="fluent_fig_4.png" alt=""><span>Velocity field across bifurcation</span></div></div>
+  <div class="ct">
+  <p>This project collection explores the cardiovascular system through fluid dynamics simulation, numerical transport modeling, and developmental biomechanics analysis.</p>
+  <p>In a computational fluid dynamics (CFD) experiment using Ansys Fluent, I simulated blood flow through a bifurcating carotid artery with and without obstruction. Using realistic CAD geometries and mesh refinement strategies, I analyzed how arterial narrowing affects flow behavior — specifically, increases in wall shear stress and flow recirculation zones that can contribute to conditions like aneurysms. The results demonstrated the role of CFD in assessing cardiovascular health risks and optimizing treatment designs.</p>
+  <p>In a separate biomechanics research project, I authored a review paper on <em>cardiac looping morphogenesis</em> — the earliest symmetry-breaking event in heart development. I compared two major modeling approaches: an integrated finite element model based on experimental observations (Shi et al., 2014), and a geometric instability model driven by residual stress (Bevilacqua et al., 2021). This work deepened my understanding of how mechanical forces and material properties drive tissue morphogenesis and shape organ development.</p>
+  <p>Additionally, in a third project, I explored 1D and 2D transport phenomena using Python-based numerical methods to simulate diffusion and advection in blood vessels. While an exploratory project, it helped solidify my understanding of discretization schemes and the interplay between transport mechanics and boundary conditions — foundational for modeling drug delivery and solute transport in biomedical contexts.</p>
+  <div style="margin-top:14px;"><a class="btn" href="fluent_artery_copy.pdf" target="_blank" rel="noopener">View CFD report</a><a class="btn" href="Cardiac_Looping.pdf" target="_blank" rel="noopener">View cardiac looping paper</a></div></div></div>
+</div></div>
+
+<div id="modal5" class="modal" onclick="closeModal(event,'modal5')"><div class="mc"><button class="x" onclick="closeModal(event,'modal5')">&times;</button>
+  <p class="eyebrow">Founder &amp; Team Lead · Columbia IDE</p><h2>ElectroBottle — Engineering for an Overlooked Health Problem</h2>
+  <p><span class="pill">Customer discovery</span><span class="pill">Solidworks</span><span class="pill">Python</span><span class="pill">Prototyping &amp; testing</span><span class="pill">Market research</span><span class="pill">Team leadership</span></p>
+  <h3>The problem I care about</h3><p>For people with chronic conditions, staying on top of hydration and electrolytes is a daily, high-stakes task — and staying consistent in the midst of debilitating symptoms is extremely challenging. I live with POTS myself, and ElectroBottle is my effort toward a better answer.</p>
+  <h3>My role</h3><p>I lead a team of four through Columbia's Innovation, Design &amp; Entrepreneurship program, owning problem definition, customer discovery, and prototyping strategy.</p>
+  <h3>What I've been building (as a skill set)</h3><ul>
+  <li><strong>Customer discovery &amp; interviewing</strong> — 20+ interviews with patients, clinicians, and experts (including social media creators with a total of 450k+ followers on TikTok); learning to get open, ask unbiased discovery questions, and translate insights into actionable design requirements.</li>
+  <li><strong>Technical</strong> — Integrating classical mechanisms, Solidworks CAD, Python programming, 3D printing,and hypothesis-driven prototyping and bench testing.</li>
+  <li><strong>Market &amp; product</strong> — competitive research and market-informed prioritization.</li></ul>
+  <h3>Connect &amp; schedule</h3>
+  <p>Want to talk hydration, chronic-illness design, or set up a time to chat? All my links — including my Calendly — live on my Linktree.</p>
+  <div style="margin:4px 0 2px;"><a class="btn" href="https://linktr.ee/REPLACE_WITH_YOUR_LINKTREE" target="_blank" rel="noopener">My Linktree · Book via Calendly ▸</a></div>
+  <div class="ipnote"><strong>A note:</strong> Designs, mechanisms, and prototype details are intentionally withheld while a patent application is in progress.</div>
+</div></div>
+
+<div id="modal6" class="modal" onclick="closeModal(event,'modal6')"><div class="mc"><button class="x" onclick="closeModal(event,'modal6')">&times;</button>
+  <p class="eyebrow">Human-Centered Design · Columbia</p><h2>Human-Centered Design: Atelier Vintage Marketplace</h2>
+  <p><span class="pill">User research</span><span class="pill">Interviewing</span><span class="pill">Service design</span><span class="pill">Prototyping</span><span class="pill">UX</span><span class="pill">Product strategy</span></p>
+  <div class="twocol"><div class="ci">
+    <div class="imgcap"><img src="Atelier_UX.png" alt=""><span>UX research synthesis</span></div>
+    <div class="imgcap"><img src="Atelier_prototype.png" alt=""><span>Early prototype screens</span></div>
+    <div class="ytwrap">
+      <div class="ytlite" data-yt="ZTzzCAtBR5Y" style="background-image:url('https://i.ytimg.com/vi/ZTzzCAtBR5Y/hqdefault.jpg')" onclick="loadYT(this)" role="button" tabindex="0" aria-label="Play Atelier Vintage presentation"><span class="pbtn"></span></div>
+      <p class="ytcap">Video not loading? <a href="https://youtu.be/ZTzzCAtBR5Y" target="_blank" rel="noopener">Watch on YouTube ↗</a></p>
+    </div>
+  </div>
+  <div class="ct">
+  <p>For Columbia's Human-Centered Design &amp; Innovation course, my team and I designed <strong>Atelier Vintage</strong> — an online marketplace that helps vintage shoppers confidently buy, tailor, style, and care for 20–100-year-old garments without the usual uncertainty or cost barriers.</p>
+  <h3>Overview</h3>
+  <p>We started with the hypothesis that shoppers love vintage for sustainability and individuality, but avoid wearing it because they don't know how to size, alter, clean, or style older garments. Interviews with shoppers, stylists, and sustainability advocates confirmed that vintage pieces often feel high-risk and low-support across fit, care, and styling.</p>
+  <h3>My Role</h3>
+  <p>I contributed to defining the core problem, synthesizing user insights, shaping the Smart-Fit and Digital Passport concepts, comparing concept directions, and developing the prototype and final narrative across pitch and demo materials.</p>
+  <h3>How We Reached the Solution</h3>
+  <p>We explored three concepts — an app, an online marketplace, and an in-person one-stop shop. The end-to-end marketplace emerged as the strongest direction because it addressed user anxiety around fit, care, and authenticity while remaining operationally realistic.</p>
+  <h3>The Final Solution</h3>
+  <ul>
+    <li><strong>AI Smart-Fit</strong> for measurement capture and digital alteration maps</li>
+    <li><strong>Certified tailor network</strong> offering accessible, consistent alterations</li>
+    <li><strong>Digital Product Passport</strong> with history, care guidance, and styling inspiration</li>
+    <li><strong>Marketplace model</strong> with optional styling add-ons and transparent pricing</li>
+  </ul>
+  <h3>Why It Solves the Problem</h3>
+  <p>The system reduces cognitive load, removes technical barriers around fit and garment care, and increases trust by making a garment's history and maintenance guidance visible — addressing core problems surfaced in research.</p>
+  <h3>Challenges &amp; Unpursued Directions</h3>
+  <p>Alternative directions — like rental models, hybrid stylist-tailor apps, and immersive in-person vintage stores — were compelling but not pursued due to operational complexity or limited user pull.</p>
+  <h3>User &amp; Business Impact</h3>
+  <p>Shoppers gain confidence wearing vintage pieces; platforms reduce returns tied to sizing; and tailors/stylists benefit from more predictable digital-to-physical demand.</p>
+  <h3>What I Learned</h3>
+  <p>This project strengthened my ability to translate ambiguous user hesitations into actionable design requirements, evaluate solution paths objectively, and articulate a full service ecosystem linking UX flows, business operations, and user value.</p>
+  <div style="margin-top:12px;"><a class="btn" href="https://ateliervintage.lovable.app/" target="_blank" rel="noopener">Try the prototype</a><a class="btn" href="https://youtu.be/ZTzzCAtBR5Y" target="_blank" rel="noopener">Watch the full presentation</a></div>
+  </div></div>
+</div></div>
+
+<div id="modalDepop" class="modal" onclick="closeModal(event,'modalDepop')"><div class="mc"><button class="x" onclick="closeModal(event,'modalDepop')">&times;</button>
+  <p class="eyebrow">Sustainable Fashion · Personal</p><h2>Curated Vintage — My Depop Shop</h2>
+  <p><span class="pill">Thrifting</span><span class="pill">Curation</span><span class="pill">Styling</span><span class="pill">Sustainability</span></p>
+  <p>Thrifting and styling is one of my favorite things — finding a great secondhand piece, putting an outfit together, and feeling confident in something sustainable and well-priced. I run a small <strong>Depop shop</strong> where I curate vintage and secondhand finds and pass them on to people who'll love them.</p>
+  <p>It's also where my engineering brain and my creative side meet: sourcing, merchandising, photographing, and pricing are their own design problem, and caring about where clothes come from is the same instinct that pulls me toward human-centered, sustainable product design.</p>
+  <div style="margin-top:12px;"><a class="btn" href="https://www.depop.com/ashley_brielle/" target="_blank" rel="noopener">Visit my Depop</a></div>
+</div></div>
+
+<div id="modalTeaching" class="modal" onclick="closeModal(event,'modalTeaching')"><div class="mc"><button class="x" onclick="closeModal(event,'modalTeaching')">&times;</button>
+  <p class="eyebrow">Teaching · Tutoring &amp; TA</p><h2>Teaching &amp; Tutoring</h2>
+  <p><span class="pill">AP &amp; Honors Chemistry</span><span class="pill">Algebra &amp; Geometry</span><span class="pill">Elementary STEM</span><span class="pill">Cornell TA</span><span class="pill">Mentoring</span></p>
+  <p>Teaching is where my engineering brain meets patience and a love of explaining things clearly. I truly enjoy seeing things click after working with a student on a problem and helping students build confidence in STEM subjects, study skills, and time management.</p>
+  <h3>Private tutoring</h3>
+  <p>I tutored in high school and have been tutoring again since moving to NJ in February 2026. I work with students across a wide range of levels — <strong>AP and Honors Chemistry</strong>, <strong>high school math including algebra and geometry</strong>, and younger <strong>elementary-level</strong> students building their early STEM foundations. I tailor each session to how the individual learns, mixing worked examples, intuition-first explanations, and plenty of practice.</p>
+  <h3>Teaching Assistant — Cornell University</h3>
+  <p style="color:var(--ink-soft);font-size:.9rem;margin:0 0 8px;">Introduction to Controlled Fusion · Jan – May 2024</p>
+  <p>At Cornell, I served as a Teaching Assistant for <strong>Introduction to Controlled Fusion</strong>, supporting students through challenging plasma-physics material, fielding questions, and helping make a dense, advanced topic approachable. I led weekly office hours, lectures in the professor's absence, and graded problem sets and exams.</p>
+</div></div>
+
+<div id="modalHardware" class="modal" onclick="closeModal(event,'modalHardware')"><div class="mc"><button class="x" onclick="closeModal(event,'modalHardware')">&times;</button>
+  <p class="eyebrow">Mechanical · Hardware · Fabrication</p><h2>The Maker Bench — MechE, Hardware &amp; 3D Printing</h2>
+  <p><span class="pill">Mechanical design</span><span class="pill">Fusion 360</span><span class="pill">Embedded C++</span><span class="pill">3D printing</span><span class="pill">Python</span><span class="pill">GMP V&amp;V</span><span class="pill">RF / HFSS</span><span class="pill">DOE</span></p>
+  <p>This corner is my mechanical and hardware side: hands-on internship work, electronics, and a home maker bench — my Bambu Lab P1S and Ender 3, a soldering iron, and more.</p>
+  <h3>Brekland — Mechanical Engineering Intern</h3><p style="color:var(--ink-soft);font-size:.9rem;margin:0 0 8px;">Brooklyn, NY · Feb 2026 – Present</p>
+  <ul><li>Owning full-cycle development of two AI-assisted vision systems for servo-actuated vineyard sprayers — BOM management, mechanical design, and embedded C++ logic — toward a field-ready MVP under tight time, environmental, and cost constraints.</li>
+  <li>Built Python GUI tools for calibration, monitoring, and assembly; authored operator documentation and market-informed recommendations for scaled-up systems.</li>
+  <li>Within three months, fabricated and shipped two prototype systems with Fusion 360, 3D printing, and machine-shop tools.</li></ul>
+  <h3>Werfen — R&amp;D Systems Engineering Co-op</h3><p style="color:var(--ink-soft);font-size:.9rem;margin:0 0 8px;">Norcross, GA · Jun 2025 – Aug 2025</p>
+  <ul><li>Executed GMP-compliant verification and validation protocols on two automated blood-testing platforms; debugged 5+ hardware/software failures through hands-on repairs and cross-functional collaboration.</li>
+  <li>Reduced reagent waste by 64% by optimizing pipettor parameters through data-driven DOE and assay-constraint analysis.</li></ul>
+  <h3>TTM Technologies — RF &amp; Microwave Engineering Intern</h3><p style="color:var(--ink-soft);font-size:.9rem;margin:0 0 8px;">Syracuse, NY · Jun 2023 – Aug 2023</p>
+  <ul><li>Evaluated RF component designs end-to-end — modeling manufacturability with tolerance cases in HFSS/AutoCAD, testing with network analyzers, and diagnosing a manufacturing defect via x-ray imaging and simulation.</li></ul>
+  <div style="margin-top:14px;"><a class="btn" href="cv_ashleymiller.pdf" target="_blank" rel="noopener">Full CV (PDF) ▸</a><a class="btn" href="resume_ashleymiller.pdf" target="_blank" rel="noopener">Résumé (PDF)</a></div>
+</div></div>
+
+<div id="modalContact" class="modal" onclick="closeModal(event,'modalContact')"><div class="mc" style="max-width:540px;"><button class="x" onclick="closeModal(event,'modalContact')">&times;</button>
+  <p class="eyebrow">Get in touch</p><h2>Contact</h2>
+  <p>I'd love to hear from you — about a role, a collaboration, or just to connect.</p>
+  <div class="contact-list">
+    <div class="ci-row"><span class="ci-label">Email</span><a href="mailto:am6555@columbia.edu">am6555@columbia.edu</a></div>
+    <div class="ci-row"><span class="ci-label">Phone</span><a href="tel:+19733698444">(973) 369-8444</a></div>
+    <div class="ci-row"><span class="ci-label">LinkedIn</span><a href="https://www.linkedin.com/in/ashleymiller20" target="_blank" rel="noopener">linkedin.com/in/ashleymiller20</a></div>
+    <!-- To add later: copy a row above and swap the label + link, e.g.
+    <div class="ci-row"><span class="ci-label">YouTube</span><a href="YOUR_YOUTUBE_URL" target="_blank" rel="noopener">YouTube</a></div>
+    <div class="ci-row"><span class="ci-label">Instagram</span><a href="YOUR_INSTAGRAM_URL" target="_blank" rel="noopener">@yourhandle</a></div>
+    -->
+  </div>
+</div></div>
+
+<script>
+  var ZONES = {
+    electrobottle:{line:"Welcome to my latest project! Over here, I'm working on ElectroBottle, a health device I'm building to aid chronic illness patients like myself in hydration and electrolyte adherence.", modal:"modal5"},
+    hardware:{line:"Over here is where I keep my mechanical engineering tools - a very full pegboard and my 3D printers. I use these tools for prototyping in professional and personal projects.", modal:"modalHardware"},
+    robocat:{line:"Meet Rainbow RoboCat — a walking quadruped robot I designed, 3D-printed, and coded from scratch at Columbia University.", modal:"modal2"},
+    cardio:{line:"ANSYS CFD — simulating blood flow and the cardiovascular system on screen.", modal:"modal4"},
+    jigging:{line:"On Cornell Electric Vehicles, I orchestrated jigging and assembly for precision drivetrain integration.", modal:"modal3"},
+    depop:{line:"Beyond the Atelier Vintage prototype, I have a real-life Depop shop for thrifted and curated vintage, because sustainable style is my favoite hobby.", modal:"modalDepop"},
+    adie:{line:"Biomedical imaging at the Adie Lab — as a Cornell undergrad, I built a waterbath fixture to align ultrasound and OCT for ARF-OCE elastography imaging and introduced the lab to FEM.", modal:"modal1"},
+    atelier:{line:"Atelier Vintage — a human-centered marketplace making vintage easy to buy, fit, and care for.", modal:"modal6"},
+    teaching:{line:"This is my teaching corner. I tutor AP & honors chemistry and math, mentor younger students, and TA'd Intro to Controlled Fusion at Cornell — helping a concept finally click is one of my favorite things.", modal:"modalTeaching"}
+  };
+
+  // click-to-play: swap the thumbnail facade for the live YouTube player
+  function loadYT(el){
+    if(el.querySelector('iframe')) return;
+    var id=el.getAttribute('data-yt');
+    var f=document.createElement('iframe');
+    f.src='https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0';
+    f.title='YouTube video player';
+    f.setAttribute('frameborder','0');
+    f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    f.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+    f.setAttribute('allowfullscreen','');
+    el.innerHTML='';
+    el.appendChild(f);
+    el.style.cursor='default';
+  }
+
+  var bubble=document.getElementById('bubble'), btxt=document.getElementById('btxt'), bhint=document.getElementById('bhint');
+  var biocard=document.getElementById('biocard');
+  var layer=document.getElementById('layer'), stage=document.getElementById('stage');
+  var reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var isTouch=window.matchMedia('(max-width:760px)').matches || ('ontouchstart' in window);
+  var BASE='scale(1.04)';
+  var typing=false, timer=null, diving=false;
+
+  function typeText(s, after){
+    clearInterval(timer); btxt.textContent=''; typing=true; if(bhint) bhint.textContent='';
+    if(reduced){ btxt.textContent=s; typing=false; if(after)after(); return; }
+    var i=0; timer=setInterval(function(){ btxt.textContent=s.slice(0,++i);
+      if(i>=s.length){ clearInterval(timer); typing=false; if(after)after(); } }, 19);
+  }
+  function advance(){ if(typing){ clearInterval(timer); typing=false; } }
+
+  // ---- bio dialogue card (top; opens on load and from avatar/Home) ----
+  function openBio(){ closeAll(); bubble.classList.remove('show'); resetZoom(); biocard.classList.add('show'); }
+  function closeBio(){ biocard.classList.remove('show'); }
+  function sayBio(){ openBio(); }
+
+  // ---- zone click: ZOOM first -> then dialogue -> then popup ----
+  function pick(el, key){
+    var z=ZONES[key]; if(!z) return;
+    closeBio(); closeAll();
+    if(reduced || isTouch){
+      bubble.classList.add('show');
+      typeText(z.line, function(){ if(bhint){ bhint.textContent='Opening ▸'; bhint.classList.add('blink'); } setTimeout(function(){ if(bhint){ bhint.classList.remove('blink'); bhint.textContent=''; } openModal(z.modal); }, 600); });
+      return;
+    }
+    // 1) slow zoom toward the object
+    diving=true;
+    layer.classList.add('zoom');
+    var l=parseFloat(el.style.left), t=parseFloat(el.style.top), w=parseFloat(el.style.width), h=parseFloat(el.style.height);
+    layer.style.transformOrigin=(l+w/2)+'% '+(t+h/2)+'%';
+    layer.style.transform='scale(2.15)';
+    // 2) after the zoom settles, Ashley speaks; 3) then the popup opens
+    setTimeout(function(){
+      bubble.classList.add('show');
+      typeText(z.line, function(){ if(bhint){ bhint.textContent='Opening ▸'; bhint.classList.add('blink'); } setTimeout(function(){ if(bhint){ bhint.classList.remove('blink'); bhint.textContent=''; } bubble.classList.remove('show'); openModal(z.modal); }, 600); });
+    }, 1150);
+  }
+
+  function resetZoom(){
+    diving=false; layer.classList.add('zoom'); layer.style.transformOrigin='50% 50%'; layer.style.transform=BASE;
+    setTimeout(function(){ layer.classList.remove('zoom'); }, 1150);
+  }
+
+  function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeAll(){ document.querySelectorAll('.modal.open').forEach(function(m){m.classList.remove('open');}); document.body.style.overflow=''; }
+  function closeModal(ev,id){ var m=document.getElementById(id);
+    if(ev && ev.target!==m && !(ev.target.classList&&ev.target.classList.contains('x'))) return;
+    m.classList.remove('open'); document.body.style.overflow=''; bubble.classList.remove('show'); resetZoom(); }
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeAll(); closeBio(); bubble.classList.remove('show'); resetZoom(); }});
+  // keyboard activation for video facades
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('ytlite')){ e.preventDefault(); loadYT(e.target); }
+  });
+
+  // subtle parallax (disabled while zooming)
+  if(!reduced && !isTouch){
+    stage.addEventListener('mousemove',function(e){
+      if(diving) return;
+      var r=stage.getBoundingClientRect(); var dx=((e.clientX-r.left)/r.width-0.5), dy=((e.clientY-r.top)/r.height-0.5);
+      layer.style.transform='scale(1.04) translate('+(dx*-10).toFixed(1)+'px,'+(dy*-7).toFixed(1)+'px)';
+    });
+    stage.addEventListener('mouseleave',function(){ if(!diving) layer.style.transform=BASE; });
+  }
+  // bio opens automatically on load
+  window.addEventListener('load',function(){ setTimeout(openBio, 500); });
+</script>
+</body>
+</html>
