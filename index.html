@@ -492,5 +492,23 @@
   // bio opens automatically on load
   window.addEventListener('load',function(){ setTimeout(openBio, 500); });
 </script>
+<!-- ===== footer ===== -->
+<footer style="position:relative;z-index:70;background:#b98a52;border-top:1px solid rgba(46,36,24,.12);
+  font-family:var(--body);font-size:.72rem;line-height:1.6;color:var(--ink-soft);
+  text-align:center;padding:13px 16px 15px;letter-spacing:.01em;">
+  <span style="opacity:.82;">© 2024–<span id="cpYr"></span> Ashley Miller · Published 2026 · Updated June 2026</span>
+  <span style="opacity:.4;"> &nbsp;·&nbsp; </span>
+  <button onclick="openModal('modalPrivacy')" style="background:none;border:none;padding:0;cursor:pointer;
+    font:inherit;color:var(--ink-soft);opacity:.82;text-decoration:underline;text-underline-offset:2px;">Privacy</button>
+  <script>document.getElementById('cpYr').textContent=new Date().getFullYear();</script>
+</footer>
+<!-- ===== privacy modal ===== -->
+<div id="modalPrivacy" class="modal" onclick="closeModal(event,'modalPrivacy')"><div class="mc">
+  <button class="x" onclick="closeModal(event,'modalPrivacy')">&times;</button>
+  <p class="eyebrow">Privacy</p>
+  <h2>A quick note on privacy</h2>
+  <p>This is a personal portfolio hosted on GitHub Pages and served through Cloudflare. Cloudflare and GitHub may log visitor IP addresses and set strictly necessary security cookies to keep the site fast and protected. I don't use tracking or advertising cookies, and I don't collect personal information beyond anything you choose to send me directly by email.</p>
+  <p style="color:var(--ink-soft);font-size:.85rem;margin-top:14px;">Questions? <a href="mailto:am6555@columbia.edu" style="color:var(--accent);">am6555@columbia.edu</a> &nbsp;·&nbsp; Last updated June 2026</p>
+</div></div>
 </body>
 </html>
